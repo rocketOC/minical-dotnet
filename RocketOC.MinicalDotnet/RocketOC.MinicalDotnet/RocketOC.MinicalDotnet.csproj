@@ -14,6 +14,9 @@
 		<Copyright>RocketOC</Copyright>
 	</PropertyGroup>
 
+	<PropertyGroup>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	</PropertyGroup>
 
 	<ItemGroup>
 		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
