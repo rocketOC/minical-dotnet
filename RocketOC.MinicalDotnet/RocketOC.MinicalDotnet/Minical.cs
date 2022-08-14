@@ -7,8 +7,9 @@
         /// </summary>
         /// <param name="dates">IEnumerable of dates when activity happened. Must contain atleast 1 date.</param>
         /// <param name="sep">Horizontal separation between months. 0 and 2 are nice.</param>
+        /// <param name="labelMonths">Add labeling to the calendar.</param>
         /// <exception cref="ArgumentException"></exception>
-        public void PrintActivity(IEnumerable<DateOnly> dates, int sep)
+        public void PrintActivity(IEnumerable<DateOnly> dates, int sep, bool labelMonths)
         {
             if (!dates.Any())
                 throw new ArgumentException($"{nameof(dates)} needs at least one date");
@@ -17,7 +18,7 @@
             var lastDate = dates.Max();
             var zeroDate = new DateOnly(firstDate.Year, firstDate.Month, 1);
 
-            int months = MonthsBetween(zeroDate, lastDate) + 1; //how many months should we display?
+            int months = DateMath.MonthsBetween(zeroDate, lastDate) + 1; //how many months should we display?
 
             //todo: try to remove any extra right padding
             //make the array of the activity data
@@ -31,14 +32,29 @@
             //make the array that indicates which cells are white space and which are dates
             var calendar = new bool[7, months * (5 + sep) + 2];
             int i = 0;
-            while ((zeroDate.AddDays(i).Year < lastDate.Year) || (zeroDate.AddDays(i).Year == lastDate.Year && zeroDate.AddDays(i).Month <= lastDate.Month))
+            while (zeroDate.AddDays(i).IsOnOrBeforeIgnoringDay(lastDate))
             {
                 var location = GetLocation(zeroDate, sep, zeroDate.AddDays(i));
                 calendar[location.Item1, location.Item2] = true;
                 i++;
             }
 
-            PrintActivity(calendar, activity);
+            //get the month labels
+            string[]? labels = null;
+            if (labelMonths)
+            {
+                labels = new string[months * (5 + sep) + 2];
+                i = 0;
+                while (zeroDate.AddMonths(i).IsOnOrBeforeIgnoringDay(lastDate))
+                {
+                    var location = GetLocation(zeroDate, sep, zeroDate.AddMonths(i));
+                    //let the user pass the format string?
+                    labels[location.Item2] = zeroDate.AddMonths(i).ToString("MMM `yy");
+                    i++;
+                }
+            }
+
+            PrintActivity(calendar, activity, labels);
         }
 
         /// <summary>
@@ -46,8 +62,31 @@
         /// Activity is a bool [,]. We will put an x where activity is true. The activity array should use the same
         /// date logic as the calendar.
         /// </summary>
-        internal virtual void PrintActivity(bool[,] calendar, bool[,] activity)
+        internal virtual void PrintActivity(bool[,] calendar, bool[,] activity, string[]? monthLabels)
         {
+            //print labels
+            if (monthLabels != null)
+            {
+                var labelRow = new char[4 * calendar.GetLength(1)];
+                for (int i = 0; i < labelRow.Length; i++)
+                {
+                    labelRow[i] = ' ';
+                }
+                for (int i = 0; i < monthLabels.Length; i++)
+                {
+                    if (monthLabels[i] != null)
+                    {
+                        //4 here comes from the block width used below
+                        int display = Math.Min(5 * 4, monthLabels[i].Length);
+                        for (int j = 0; j < display; j++)
+                        {
+                            labelRow[i*4 + j] = monthLabels[i][j];
+                        }
+                    }
+                }
+                Console.WriteLine(new string(labelRow));
+            }
+
             for (int r = 0; r < calendar.GetLength(0); r++)
             {
                 for (int c = 0; c < calendar.GetLength(1); c++)
@@ -121,37 +160,8 @@
             int dayOfYear = (someDate.ToDateTime(new TimeOnly(0, 0, 0)) - zeroDate.ToDateTime(new TimeOnly(0, 0, 0))).Days;
             int dayOfWeek = (int)someDate.DayOfWeek; //sunday is 0
             int row = 6 - dayOfWeek;
-            int col = (dayOfYear + firstOfTheCalendarDay) / 7 + separation * MonthsBetween(zeroDate, someDate);
+            int col = (dayOfYear + firstOfTheCalendarDay) / 7 + separation * DateMath.MonthsBetween(zeroDate, someDate);
             return (row, col);
-        }
-
-        /// <summary>
-        /// Find the number of months between two dates.
-        /// </summary>
-        internal static int MonthsBetween(DateOnly startDate, DateOnly endDate)
-        {
-            if (endDate < startDate)
-            {
-                throw new ArgumentException($"{nameof(endDate)} should be on or after {nameof(startDate)}");
-            }
-
-            int months = 0;
-            if (startDate.Year == endDate.Year)
-            {
-                months = endDate.Month - startDate.Month;
-            }
-            else
-            {
-                if (startDate.Month <= endDate.Month)
-                {
-                    months = 12 * (endDate.Year - startDate.Year) + (endDate.Month - startDate.Month);
-                }
-                else
-                {
-                    months = 12 * (endDate.Year - startDate.Year - 1) + (12 - startDate.Month) + endDate.Month;
-                }
-            }
-            return months;
         }
     }
 }
