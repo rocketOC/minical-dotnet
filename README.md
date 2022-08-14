@@ -9,20 +9,20 @@ SemVer will be used once 1.0.0 is hit. Until then, minor versions will be used f
 
 Todos:
 
-- [] make a stable release
-- [] add tests
-- [] add interfaces
-- [] allow for access of array representations
+- [ ] make a stable release
+- [ ] add tests
+- [ ] add interfaces
+- [ ] allow for access of array representations
   - testability
   - easier swaping of display options
-- [] more display options
-  - [] compact
+- [ ] more display options
+  - [ ] compact
   - [x] optional month labels
-  - [] optional day labels
-  - [] optional wrapping based on terminal width
-  - [] ...
+  - [ ] optional day labels
+  - [ ] optional wrapping based on terminal width
+  - [ ] ...
 - [x] publish to NuGet
-- CD to NuGet
+- [ ] CD to NuGet
 
 Example 1:
 
