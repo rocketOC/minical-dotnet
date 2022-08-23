@@ -1,13 +1,13 @@
-Summary:
+# Summary
 This project will offer little calendars that you can print to your console.
 
-Status:
+# Status
 Not stable
 
-Versioning:
+# Versioning
 SemVer will be used once 1.0.0 is hit. Until then, minor versions will be used for improvements and patch versions will be used for bug fixes.
 
-Todos:
+# Todos
 
 - [ ] make a stable release
 - [ ] add tests
@@ -19,12 +19,19 @@ Todos:
   - [ ] compact
   - [x] optional month labels
   - [ ] optional day labels
-  - [ ] optional wrapping based on terminal width
+  - [X] optional wrapping
   - [ ] ...
 - [x] publish to NuGet
 - [ ] CD to NuGet
+- [ ] block merges containing the same version
 
-Example 1:
+# Examples
+
+## Example 0
+
+See [as-minical](https://github.com/rocketOC/as-minical) for an example command line program
+
+## Example 1
 
 ```csharp
 using RocketOC.MinicalDotnet;
@@ -42,17 +49,17 @@ void Main()
 		new (2022, 08, 15),
 	};
 
-	//2 blocks of separation beween months
-	mini.PrintActivity(commits, 2, true);
+	//2 blocks of separation beween months and no wraping
+	mini.PrintActivity(commits, 2, true, -1);
 	
 	Console.WriteLine("\n\n");
 	
-	//no separation of months
-	mini.PrintActivity(commits, 0, true);
+	//no separation of months and no wraping
+	mini.PrintActivity(commits, 0, true, -1);
 }
 ```
 
-Example Output:
+Output:
 
 ```
 Jul `22                     Aug `22                             
